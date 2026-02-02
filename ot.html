@@ -4,49 +4,53 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OT Tracker</title>
-<style>
-  body { font-family: Arial; margin: 20px; }
-  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-  th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-  th { background-color: #f2f2f2; }
-</style>
+<link rel="stylesheet" href="ot.css">
 </head>
 <body>
 
 <h2>Overtime Request Tracker</h2>
 
 <form id="otForm">
-  <label>House Manager / Program Director: <input type="text" id="manager" required></label><br><br>
-  <label>Employee(s) Working OT: <input type="text" id="employee" required></label><br><br>
-  <label>Date: <input type="date" id="date" required></label><br><br>
-  <label>Hours: <input type="number" id="hours" required></label><br><br>
-  <label>Reason / Notes: <input type="text" id="reason"></label><br><br>
-  <label>Approval Status:
-    <select id="status">
-      <option value="Pending">Pending</option>
-      <option value="Approved">Approved</option>
-      <option value="Denied">Denied</option>
-    </select>
+  <label>House Manager / Program Director:<br>
+    <input type="text" id="manager" required>
   </label><br><br>
-  <button type="submit">Add OT</button>
+
+  <label>Employee(s) Working OT:<br>
+    <input type="text" id="employee" required>
+  </label><br><br>
+
+  <label>Date of OT:<br>
+    <input type="date" id="date" required>
+  </label><br><br>
+
+  <label>Hours:<br>
+    <input type="number" id="hours" required>
+  </label><br><br>
+
+  <label>Reason / Notes:<br>
+    <input type="text" id="reason">
+  </label><br><br>
+
+  <button type="submit">Submit OT</button>
 </form>
 
 <table id="otTable">
   <thead>
     <tr>
-      <th>Date</th>
+      <th>Timestamp</th>
       <th>Manager</th>
       <th>Employee(s)</th>
+      <th>OT Date</th>
       <th>Hours</th>
       <th>Reason</th>
       <th>Status</th>
+      <th>Actions</th>
     </tr>
   </thead>
-  <tbody>
-    <!-- OT entries will appear here -->
-  </tbody>
+  <tbody></tbody>
 </table>
 
 <script src="ot.js"></script>
 </body>
 </html>
+
