@@ -1,70 +1,78 @@
-// Submit OT form
-document.getElementById('otForm').addEventListener('submit', e => {
-  e.preventDefault();
-  const entry = {
-    houseManager: document.getElementById('manager').value,
-    employee: document.getElementById('employee').value,
-    date: document.getElementById('date').value,
-    hours: document.getElementById('hours').value,
-    reason: document.getElementById('reason').value,
-    status: "Pending",
-    approvedBy: "",
-    approvedAt: ""
-  };
+// ---------------------------
+// OT Tracker JS for Apps Script
+// ---------------------------
 
-  google.script.run.withSuccessHandler(() => {
-    loadOTEntries();
-    document.getElementById('otForm').reset();
-    alert("OT logged successfully!");
-  }).doPost({postData: {contents: JSON.stringify(entry)}});
+window.addEventListener("load", function () {
+  const form = document.getElementById("otForm");
+
+  // Submit OT form
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const data = {
+      houseManager: document.getElementById("houseManager").value,
+      employee: document.getElementById("employee").value,
+      date: document.getElementById("date").value,
+      hours: document.getElementById("hours").value,
+      reason: document.getElementById("reason").value
+    };
+
+    // Call server-side function to add OT entry
+    google.script.run
+      .withSuccessHandler(() => {
+        alert("OT submitted successfully!");
+        form.reset();
+        loadOTEntries(); // Refresh table
+      })
+      .withFailureHandler(err => {
+        alert("Error submitting OT: " + err.message);
+      })
+      .addOTEntry(data);
+  });
+
+  // Initial table load
+  loadOTEntries();
+
+  // Auto-refresh every 30 seconds
+  setInterval(loadOTEntries, 30000);
 });
 
-// Load OT entries and populate table
+// ---------------------------
+// Load OT entries from Sheet
+// ---------------------------
 function loadOTEntries() {
-  google.script.run.withSuccessHandler(entries => {
-    const tbody = document.querySelector('#otTable tbody');
-    tbody.innerHTML = '';
-    entries.forEach(entry => {
-      const row = tbody.insertRow();
-      row.insertCell(0).textContent = entry.Timestamp || '';
-      row.insertCell(1).textContent = entry['House Manager'] || '';
-      row.insertCell(2).textContent = entry['Employee(s)'] || '';
-      row.insertCell(3).textContent = entry['OT Date'] || '';
-      row.insertCell(4).textContent = entry.Hours || '';
-      row.insertCell(5).textContent = entry.Reason || '';
-      row.insertCell(6).textContent = entry.Status || '';
-
-      const actionCell = row.insertCell(7);
-      if(entry.Status === 'Pending') {
-        const approveBtn = document.createElement('button');
-        approveBtn.textContent = 'Approve';
-        approveBtn.onclick = () => updateStatus(entry, 'Approved');
-        const denyBtn = document.createElement('button');
-        denyBtn.textContent = 'Deny';
-        denyBtn.onclick = () => updateStatus(entry, 'Denied');
-        actionCell.appendChild(approveBtn);
-        actionCell.appendChild(denyBtn);
-      } else {
-        actionCell.textContent = '-';
-      }
-    });
-  }).getOTEntries();
+  google.script.run
+    .withSuccessHandler(renderOTTable)
+    .withFailureHandler(err => {
+      console.error("Error loading OT entries:", err);
+    })
+    .getOTEntries();
 }
 
-// Update OT status
-function updateStatus(entry, newStatus) {
-  entry.Status = newStatus;
-  entry.approvedBy = "Nikki";
-  entry.approvedAt = new Date().toLocaleString();
+// ---------------------------
+// Render OT table in HTML
+// ---------------------------
+function renderOTTable(entries) {
+  const tbody = document.querySelector("#otTable tbody");
+  tbody.innerHTML = ""; // Clear existing rows
 
-  google.script.run.withSuccessHandler(() => {
-    loadOTEntries();
-    alert(`OT ${newStatus}!`);
-  }).doPost({postData: {contents: JSON.stringify(entry)}});
+  entries.forEach((entry, index) => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${entry.Timestamp || ""}</td>
+      <td>${entry["House Manager"] || ""}</td>
+      <td>${entry["Employee(s)"] || ""}</td>
+      <td>${entry["OT Date"] || ""}</td>
+      <td>${entry["Hours"] || ""}</td>
+      <td>${entry["Reason"] || ""}</td>
+      <td>${entry["Status"] || ""}</td>
+      <td>${entry["Approved By"] || ""}</td>
+      <td>${entry["Approved At"] || ""}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
 }
 
-// Auto-refresh every 30 seconds
-setInterval(loadOTEntries, 30000);
 
-// Initial table load
-loadOTEntries();
